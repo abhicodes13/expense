@@ -86,6 +86,22 @@ func main() {
 			http.Error(w,"Invalid expense id", http.StatusBadRequest)
 			return
 		}
+		if r.Method == http.MethodDelete {
+
+    for i, expense := range expenses {
+
+        if expense.ID == id {
+
+            expenses = append(expenses[:i], expenses[i+1:]...)
+
+            w.WriteHeader(http.StatusNoContent)
+            return
+        }
+    }
+
+    http.Error(w, "Expense not found", http.StatusNotFound)
+    return
+}
 		for _, expense := range expenses{
 		if expense.ID == id{
 			json.NewEncoder(w).Encode(expense)
