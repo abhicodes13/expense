@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 )
 
 func main() {
@@ -75,6 +76,26 @@ func main() {
 		// GET /expenses
 		json.NewEncoder(w).Encode(expenses)
 	})
+
+	http.HandleFunc("/expenses/", func(w http.ResponseWriter, r*http.Request){
+		idString:= r.URL.Path[len("/expenses/"):]
+
+		id, err := strconv.Atoi(idString)
+
+		if err!=nil{
+			http.Error(w,"Invalid expense id", http.StatusBadRequest)
+			return
+		}
+		for _, expense := range expenses{
+		if expense.ID == id{
+			json.NewEncoder(w).Encode(expense)
+			return
+		}
+	}
+	http.Error(w, "Expense not found", http.StatusNotFound)
+	})
+
+	
 
 	fmt.Println("Server is running on 8080")
 
