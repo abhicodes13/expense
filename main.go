@@ -86,6 +86,49 @@ func main() {
 			http.Error(w,"Invalid expense id", http.StatusBadRequest)
 			return
 		}
+
+		if r.Method == http.MethodPut {
+
+    var updatedExpense Expense
+
+    err := json.NewDecoder(r.Body).Decode(&updatedExpense)
+
+    if err != nil {
+        http.Error(w, "Invalid JSON", http.StatusBadRequest)
+        return
+    }
+
+    if updatedExpense.Title == "" {
+        http.Error(w, "Title is required", http.StatusBadRequest)
+        return
+    }
+
+    if updatedExpense.Amount <= 0 {
+        http.Error(w, "Amount must be greater than 0", http.StatusBadRequest)
+        return
+    }
+
+    if updatedExpense.Category == "" {
+        http.Error(w, "Category is required", http.StatusBadRequest)
+        return
+    }
+
+    for i, expense := range expenses {
+
+        if expense.ID == id {
+
+            updatedExpense.ID = expense.ID
+            expenses[i] = updatedExpense
+
+            json.NewEncoder(w).Encode(updatedExpense)
+            return
+        }
+    }
+
+    http.Error(w, "Expense not found", http.StatusNotFound)
+    return
+}
+
 		if r.Method == http.MethodDelete {
 
     for i, expense := range expenses {
