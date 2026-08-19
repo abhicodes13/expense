@@ -2,13 +2,14 @@ package main
 
 import (
 	"encoding/json"
+	"expense-api/models"
 	"fmt"
 	"net/http"
 	"strconv"
 )
 
 func main() {
-	expenses := []Expense{
+	expenses := []models.Expense{
 		{
 			ID:       1,
 			Title:    "Burger",
@@ -30,7 +31,7 @@ func main() {
 	http.HandleFunc("/expenses", func(w http.ResponseWriter, r *http.Request) {
 
 		if r.Method == http.MethodPost {
-			var expense Expense
+			var expense models.Expense
 
 			// Decode JSON from the request body
 			err := json.NewDecoder(r.Body).Decode(&expense)
@@ -77,84 +78,82 @@ func main() {
 		json.NewEncoder(w).Encode(expenses)
 	})
 
-	http.HandleFunc("/expenses/", func(w http.ResponseWriter, r*http.Request){
-		idString:= r.URL.Path[len("/expenses/"):]
+	http.HandleFunc("/expenses/", func(w http.ResponseWriter, r *http.Request) {
+		idString := r.URL.Path[len("/expenses/"):]
 
 		id, err := strconv.Atoi(idString)
 
-		if err!=nil{
-			http.Error(w,"Invalid expense id", http.StatusBadRequest)
+		if err != nil {
+			http.Error(w, "Invalid expense id", http.StatusBadRequest)
 			return
 		}
 
 		if r.Method == http.MethodPut {
 
-    var updatedExpense Expense
+			var updatedExpense models.Expense
 
-    err := json.NewDecoder(r.Body).Decode(&updatedExpense)
+			err := json.NewDecoder(r.Body).Decode(&updatedExpense)
 
-    if err != nil {
-        http.Error(w, "Invalid JSON", http.StatusBadRequest)
-        return
-    }
+			if err != nil {
+				http.Error(w, "Invalid JSON", http.StatusBadRequest)
+				return
+			}
 
-    if updatedExpense.Title == "" {
-        http.Error(w, "Title is required", http.StatusBadRequest)
-        return
-    }
+			if updatedExpense.Title == "" {
+				http.Error(w, "Title is required", http.StatusBadRequest)
+				return
+			}
 
-    if updatedExpense.Amount <= 0 {
-        http.Error(w, "Amount must be greater than 0", http.StatusBadRequest)
-        return
-    }
+			if updatedExpense.Amount <= 0 {
+				http.Error(w, "Amount must be greater than 0", http.StatusBadRequest)
+				return
+			}
 
-    if updatedExpense.Category == "" {
-        http.Error(w, "Category is required", http.StatusBadRequest)
-        return
-    }
+			if updatedExpense.Category == "" {
+				http.Error(w, "Category is required", http.StatusBadRequest)
+				return
+			}
 
-    for i, expense := range expenses {
+			for i, expense := range expenses {
 
-        if expense.ID == id {
+				if expense.ID == id {
 
-            updatedExpense.ID = expense.ID
-            expenses[i] = updatedExpense
+					updatedExpense.ID = expense.ID
+					expenses[i] = updatedExpense
 
-            json.NewEncoder(w).Encode(updatedExpense)
-            return
-        }
-    }
+					json.NewEncoder(w).Encode(updatedExpense)
+					return
+				}
+			}
 
-    http.Error(w, "Expense not found", http.StatusNotFound)
-    return
-}
+			http.Error(w, "Expense not found", http.StatusNotFound)
+			return
+		}
 
 		if r.Method == http.MethodDelete {
 
-    for i, expense := range expenses {
+			for i, expense := range expenses {
 
-        if expense.ID == id {
+				if expense.ID == id {
 
-            expenses = append(expenses[:i], expenses[i+1:]...)
+					expenses = append(expenses[:i], expenses[i+1:]...)
 
-            w.WriteHeader(http.StatusNoContent)
-            return
-        }
-    }
+					w.WriteHeader(http.StatusNoContent)
+					return
+				}
+			}
 
-    http.Error(w, "Expense not found", http.StatusNotFound)
-    return
-}
-		for _, expense := range expenses{
-		if expense.ID == id{
-			json.NewEncoder(w).Encode(expense)
+			http.Error(w, "Expense not found", http.StatusNotFound)
 			return
 		}
-	}
-	http.Error(w, "Expense not found", http.StatusNotFound)
+		for _, expense := range expenses {
+			if expense.ID == id {
+				json.NewEncoder(w).Encode(expense)
+				return
+			}
+		}
+		http.Error(w, "Expense not found", http.StatusNotFound)
 	})
-
-	
 
 	fmt.Println("Server is running on 8080")
 
