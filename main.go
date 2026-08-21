@@ -22,6 +22,19 @@ func main() {
 			Amount:   40.00,
 			Category: "Transportation",
 		},
+		{
+			ID:       3,
+			Title:    "Burger",
+			Amount:   18.99,
+			Category: "Food",
+		},
+		{
+			ID:       4,
+			Title:    "Gas",
+			Amount:   40.00,
+			Category: "Transportation",
+		},
+
 	}
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
